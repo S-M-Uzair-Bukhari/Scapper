@@ -54,7 +54,7 @@
     "enabled": true,
     "intervalMinutes": 15,
     "maxResultsPerRun": 2,
-    "headless": true,
+    "headless": false,
     "maxPages": 1,
     "profileDir": "data/chrome-profile/google",
     "pageLoadWaitMs": 4000,
