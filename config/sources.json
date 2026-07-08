@@ -1,0 +1,39 @@
+[
+  {
+    "name": "upwork",
+    "enabled": true,
+    "intervalMinutes": 10,
+    "maxResultsPerRun": 100,
+    "headless": true,
+    "maxPages": 3,
+    "profileDir": "data/chrome-profile/upwork",
+    "waitForManualVerification": true,
+    "manualVerificationTimeoutMs": 120000,
+    "pageLoadWaitMs": 10000,
+    "keepBrowserOpen": false,
+    "baseSearchUrl": "https://www.upwork.com/nx/search/jobs/",
+    "delayBetweenPagesMs": 5000,
+    "onlyCompanyProjects": false
+  },
+  {
+    "name": "linkedin",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 100,
+    "headless": true
+  },
+  {
+    "name": "facebook",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 100,
+    "headless": true
+  },
+  {
+    "name": "indeed",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 100,
+    "headless": true
+  }
+]

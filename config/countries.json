@@ -1,0 +1,17 @@
+[
+  {
+    "name": "United States",
+    "enabled": true,
+    "aliases": ["usa", "us", "united states", "america"]
+  },
+  {
+    "name": "United Kingdom",
+    "enabled": true,
+    "aliases": ["uk", "united kingdom", "england", "britain"]
+  },
+  {
+    "name": "Canada",
+    "enabled": true,
+    "aliases": ["canada", "ca"]
+  }
+]

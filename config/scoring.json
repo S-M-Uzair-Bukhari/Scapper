@@ -1,0 +1,32 @@
+{
+  "minimumPriorityScore": 70,
+  "freshWindowHours": 48,
+  "preferredFreshHours": 24,
+  "weights": {
+    "categoryMatch": 25,
+    "keywordMatch": 20,
+    "countryMatch": 15,
+    "freshness": 15,
+    "budgetOrIntent": 10,
+    "contentQuality": 15
+  },
+  "intentKeywords": [
+    "need",
+    "looking for",
+    "hire",
+    "urgent",
+    "asap",
+    "project",
+    "developer",
+    "expert",
+    "specialist",
+    "agency"
+  ],
+  "negativeKeywords": [
+    "free",
+    "unpaid",
+    "internship",
+    "exposure",
+    "commission only"
+  ]
+}
