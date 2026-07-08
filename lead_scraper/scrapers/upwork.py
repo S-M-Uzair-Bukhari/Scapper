@@ -421,17 +421,23 @@ def scrape_upwork(source, category, config):
             if source_lead_id in unique_jobs:
                 continue
 
+            # Extract country from location for Excel compatibility
+            job_location = job.get("location", "")
+            country = job_location.split(",")[-1].strip() if "," in job_location else job_location
+            
             unique_jobs[source_lead_id] = {
                 "source": "upwork",
                 "sourceLeadId": source_lead_id,
                 "title": job.get("title", ""),
                 "url": job.get("url", ""),
                 "description": job.get("description", ""),
+                "category": category["name"],  # Required field for Excel writer
+                "country": country,  # Required field for Excel writer
                 "budget": job.get("budget", ""),
                 "postedAt": posted_at,
                 "postedAtRaw": posted_at_raw,
                 "companyName": job.get("companyName", ""),
-                "location": job.get("location", ""),
+                "location": job_location,
                 "email": job.get("email", ""),
                 "phone": job.get("phone", ""),
                 "projectType": job.get("projectType", "individual"),

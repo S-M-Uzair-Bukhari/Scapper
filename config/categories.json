@@ -3,10 +3,6 @@
     "name": "web development",
     "enabled": true,
     "keywords": ["react", "next.js", "node.js", "javascript", "shopify", "wordpress", "web app"]
-  },
-  {
-    "name": "automation",
-    "enabled": true,
-    "keywords": ["automation", "scraping", "crawler", "playwright", "puppeteer", "workflow"]
   }
+
 ]
