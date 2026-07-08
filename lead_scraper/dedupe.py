@@ -1,5 +1,6 @@
 import hashlib
 import re
+from datetime import datetime
 
 
 def normalize(value):
@@ -11,7 +12,12 @@ def normalize(value):
 
 def create_dedupe_key(lead):
     posted_at = lead.get("postedAt")
-    posted_value = posted_at.date().isoformat() if posted_at else lead.get("postedAtRaw")
+    posted_value = lead.get("postedAtRaw")
+    if isinstance(posted_at, datetime):
+        posted_value = posted_at.date().isoformat()
+    elif posted_at:
+        posted_value = str(posted_at).split("T", 1)[0]
+
     parts = [
         lead.get("source"),
         lead.get("sourceLeadId"),
@@ -39,4 +45,3 @@ def is_duplicate(lead, existing):
             return True
 
     return False
-

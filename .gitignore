@@ -14,6 +14,11 @@ env/
 # Local environment/config secrets
 .env
 .env.*
+config/google_sheets.json
+config/*service-account*.json
+config/*service*key*.json
+service-account*.json
+*service*key*.json
 
 # Generated scraper output
 data/

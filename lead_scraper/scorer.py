@@ -21,8 +21,9 @@ def score_lead(lead, config):
     weights = scoring["weights"]
     text = " ".join(str(lead.get(field) or "") for field in ("title", "description", "category", "country"))
 
-    score = 0
-    reasons = []
+    # Start with base score from critical fields (these are HIGHEST weighted)
+    score = lead.get("score", 0)
+    reasons = [f"base_score:{score}"]
 
     category = next((item for item in categories if item["name"] == lead.get("category")), None)
     if category:
@@ -73,4 +74,3 @@ def score_lead(lead, config):
         "score": max(0, min(100, score)),
         "scoreReasons": reasons,
     }
-

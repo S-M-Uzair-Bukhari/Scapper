@@ -1,8 +1,9 @@
 [
-  {
-    "name": "web development",
+
+    {
+    "name": "CMS",
     "enabled": true,
-    "keywords": ["react", "next.js", "node.js", "javascript", "shopify", "wordpress", "web app"]
+    "keywords": ["cms", "wordpress"]
   }
 
 ]

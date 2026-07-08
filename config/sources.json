@@ -1,11 +1,11 @@
 [
   {
     "name": "upwork",
-    "enabled": true,
+    "enabled": false,
     "intervalMinutes": 10,
-    "maxResultsPerRun": 100,
-    "headless": true,
-    "maxPages": 3,
+    "maxResultsPerRun": 2,
+    "headless": false,
+    "maxPages": 1,
     "profileDir": "data/chrome-profile/upwork",
     "waitForManualVerification": true,
     "manualVerificationTimeoutMs": 120000,
@@ -17,10 +17,17 @@
   },
   {
     "name": "linkedin",
-    "enabled": false,
+    "enabled": true,
     "intervalMinutes": 15,
-    "maxResultsPerRun": 100,
-    "headless": true
+    "maxResultsPerRun": 5,
+    "headless": false,
+    "maxPages": 1,
+    "profileDir": "data/chrome-profile/linkedin",
+    "waitForManualVerification": true,
+    "manualVerificationTimeoutMs": 180000,
+    "pageLoadWaitMs": 10000,
+    "keepBrowserOpen": false,
+    "delayBetweenPagesMs": 5000
   },
   {
     "name": "facebook",

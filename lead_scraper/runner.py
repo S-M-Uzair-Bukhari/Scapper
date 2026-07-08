@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from lead_scraper.config import load_config
 from lead_scraper.date_parser import is_within_hours
 from lead_scraper.dedupe import create_dedupe_key, is_duplicate
-from lead_scraper.excel_writer import get_output_file, read_existing_lead_keys, save_run_result
+from lead_scraper.excel_writer import get_output_target, read_existing_lead_keys, save_run_result
 from lead_scraper.scorer import score_lead
 from lead_scraper.scrapers.facebook import scrape_facebook
 from lead_scraper.scrapers.instagram import scrape_instagram
@@ -28,6 +28,7 @@ def run_once(source_name=None):
 
     existing = read_existing_lead_keys()
     accepted_leads = []
+    all_leads = []
     rejected_leads = []
     logs = []
 
@@ -62,23 +63,37 @@ def run_once(source_name=None):
 
                 for lead in leads:
                     lead["dedupeKey"] = create_dedupe_key(lead)
+                    scored = {**lead, **score_lead(lead, config)}
 
                     if not is_within_hours(lead.get("postedAt"), config["scoring"]["freshWindowHours"]):
+                        all_leads.append({**scored, "leadStatus": "skippedOld"})
                         log["skippedOld"] += 1
                         continue
 
                     if is_duplicate(lead, existing) or is_duplicate(lead, accepted_leads) or is_duplicate(lead, rejected_leads):
+                        all_leads.append({**scored, "leadStatus": "duplicate"})
                         log["duplicates"] += 1
                         continue
 
-                    scored = {**lead, **score_lead(lead, config)}
-
                     if scored["score"] >= config["scoring"]["minimumPriorityScore"]:
+                        # 70+ points: Save to priority leads (highest quality)
+                        scored["leadStatus"] = "priority"
                         accepted_leads.append(scored)
+                        all_leads.append(scored)
                         existing.append(scored)
                         log["saved"] += 1
-                    else:
+                    elif scored["score"] < 50:
+                        # Below 50 points: Save to rejected (low quality)
+                        scored["leadStatus"] = "rejectedLowScore"
                         rejected_leads.append(scored)
+                        all_leads.append(scored)
+                        existing.append(scored)
+                        log["skippedLowScore"] += 1
+                    else:
+                        # 50-69 points: Still save to all leads but not priority
+                        scored["leadStatus"] = "rejectedLowScore"
+                        rejected_leads.append(scored)
+                        all_leads.append(scored)
                         existing.append(scored)
                         log["skippedLowScore"] += 1
             except Exception as error:
@@ -86,10 +101,9 @@ def run_once(source_name=None):
 
             logs.append(log)
 
-    save_run_result(accepted_leads, rejected_leads, logs)
+    save_run_result(accepted_leads, rejected_leads, logs, all_leads=all_leads)
 
     print(f"Accepted priority leads: {len(accepted_leads)}")
     print(f"Rejected low-score leads: {len(rejected_leads)}")
     print(f"Run log rows written: {len(logs)}")
-    print(f"Excel file: {get_output_file()}")
-
+    print(f"Output target: {get_output_target()}")

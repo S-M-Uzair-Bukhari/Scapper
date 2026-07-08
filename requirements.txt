@@ -2,3 +2,6 @@ openpyxl>=3.1.5
 schedule>=1.2.2
 selenium>=4.27.1
 beautifulsoup4>=4.12.3
+google-api-python-client>=2.140.0
+google-auth>=2.33.0
+google-auth-httplib2>=0.2.0

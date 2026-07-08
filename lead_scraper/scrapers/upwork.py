@@ -11,7 +11,7 @@ from lead_scraper.config import from_root
 from lead_scraper.date_parser import utc_now
 
 
-BLOCKED_PATTERN = re.compile(r"security check|captcha|login|sign in", re.I)
+BLOCKED_PATTERN = re.compile(r"security check|captcha|log in|sign in.*required|you need to login", re.I)
 
 
 def build_search_url(source, category, page=1):
@@ -85,11 +85,23 @@ def save_debug(driver, category_name, meta=None):
 
 def page_looks_blocked(driver):
     try:
+        # Check if we're actually on the login page
+        if "/login/" in driver.current_url or "/signin/" in driver.current_url:
+            return True
+            
+        # Check for security blocks or captcha pages
         body_text = driver.find_element("body").text
+        page_title = driver.title
+        
+        # Only block if we find actual security/captcha messages, not just the nav bar text
+        security_issues = bool(re.search(r"security check|captcha|you are blocked|access denied", f"{page_title} {body_text}", re.I))
+        
+        # Check if job tiles exist - if they do, page is NOT blocked
+        job_cards_exist = len(driver.find_elements("css selector", ".job-tile, a[href*='/jobs/~']")) > 0
+        
+        return security_issues and not job_cards_exist
     except WebDriverException:
-        body_text = ""
-
-    return bool(BLOCKED_PATTERN.search(f"{driver.title} {body_text}"))
+        return True
 
 
 def wait_for_manual_verification(driver, source):
@@ -122,21 +134,20 @@ def extract_job_details(driver, basic_job):
     
     job_details = basic_job.copy()
     
-    # Extract company/client name with improved selectors
+    # Extract company/client name with updated selectors for Upwork's current UI
     company_name = ""
     company_selectors = [
         "[data-test='company-name']",
-        ".client-name",
+        "[data-test='client-company-name']",
+        ".client-name a",
         ".company-name",
         "h3:-soup-contains('About the client') + div a",
+        "div[data-test='AboutClient'] a",
         ".air3-card-section a[href*='/organizations/']",
-        ".client-info a",
+        ".up-card-section a[href*='/organizations/']",
         "[data-qa='client-name']",
         ".air3-typography[data-test='company-name']",
-        "div[data-test='AboutClient'] a",
-        ".up-card-section a[href*='/organizations/']",
-        "[data-test='client-company-name']",
-        ".client-company-name"
+        ".client-info a"
     ]
     
     for selector in company_selectors:
@@ -153,13 +164,14 @@ def extract_job_details(driver, basic_job):
     if company_name:
         project_type = "company"
     
-    # Extract location
+    # Extract location with updated selectors for Upwork's current UI
     location = ""
     location_selectors = [
         "[data-test='location']",
+        "[data-qa='client-location']",
         ".client-location",
-        "div:-soup-contains('Location') + div",
-        "[data-qa='client-location']"
+        "div[data-test='AboutClient'] div:-soup-contains('Location') + div",
+        ".air3-card-section div:-soup-contains('Location') + div"
     ]
     
     for selector in location_selectors:
@@ -171,16 +183,22 @@ def extract_job_details(driver, basic_job):
         except Exception:
             continue
     
-    # Extract contact information
+    # Extract contact information - only find real emails/phones in the job description
+    job_description = soup.select_one("[data-test='job-description-text']")
+    desc_text = job_description.get_text() if job_description else ""
+    
     email = ""
     phone = ""
-    email_matches = re.findall(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", page_html)
+    # Only search for emails within the actual job description, not the whole page
+    email_matches = re.findall(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", desc_text)
     if email_matches:
         email = email_matches[0]
     
-    phone_matches = re.findall(r"\+?[\d\s-]{10,}", page_html)
-    if phone_matches:
-        phone = phone_matches[0]
+    # Only search for valid phone numbers in the job description (min 10 digits, avoid random numbers)
+    phone_matches = re.findall(r"\+?[\d\s-]{10,}", desc_text)
+    valid_phones = [p for p in phone_matches if sum(c.isdigit() for c in p) >= 10]
+    if valid_phones:
+        phone = valid_phones[0]
     
     job_details.update({
         "companyName": company_name,
@@ -256,24 +274,29 @@ def collect_job_cards_local(html_source):
     return jobs
 
 
-def calculate_lead_score(job):
-    score = 0
+def calculate_base_score(job):
+    """Calculate base score from critical fields - these are the HIGHEST weighted"""
+    base_score = 0
+    # Highest priority: contact info and company details (max 100 points from these alone)
     if job.get("companyName"):
-        score += 30
+        base_score += 30  # Company name exists
     if job.get("location"):
-        score += 20
+        base_score += 25  # Location exists
     if job.get("email"):
-        score += 25
+        base_score += 30  # Email exists (highest value contact field)
     if job.get("phone"):
-        score += 15
+        base_score += 15  # Phone exists
+    
+    # Add small freshness bonus (doesn't override critical fields priority)
     if job.get("postedAtRaw"):
         posted_raw = job["postedAtRaw"].lower()
         if "hour" in posted_raw or "minute" in posted_raw or "today" in posted_raw:
-            score += 10
+            base_score += 5  # Small bonus for very fresh leads
         elif "day" in posted_raw and ("1" in posted_raw or "2" in posted_raw):
-            score += 5
+            base_score += 2  # Tiny bonus for leads posted in last 48h
     
-    return score
+    # Critical fields are always highest - even with bonuses, cap base at 100
+    return min(base_score, 100)
 
 
 def parse_posted_at(posted_at_raw, scraped_at):
@@ -381,7 +404,7 @@ def scrape_upwork(source, category, config):
                     time.sleep(3)
                     
                     job_details = extract_job_details(driver, job)
-                    job_details["score"] = calculate_lead_score(job_details)
+                    job_details["score"] = calculate_base_score(job_details)
                     page_detailed_jobs.append(job_details)
                     print(f"[UPWORK] Successfully scraped details for: {job['title']} (Score: {job_details['score']})")
                     
@@ -421,8 +444,11 @@ def scrape_upwork(source, category, config):
             if source_lead_id in unique_jobs:
                 continue
 
-            # Extract country from location for Excel compatibility
+            # Clean location and extract country for Excel compatibility
             job_location = job.get("location", "")
+            # Remove any timestamps that might be scraped incorrectly
+            job_location = re.sub(r"\d{1,2}:\d{2}\s*(AM|PM)?", "", job_location, flags=re.I).strip()
+            # Extract country from cleaned location
             country = job_location.split(",")[-1].strip() if "," in job_location else job_location
             
             unique_jobs[source_lead_id] = {

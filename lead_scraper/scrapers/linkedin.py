@@ -94,11 +94,23 @@ def save_debug(driver, category_name, meta=None):
 
 def page_looks_blocked(driver):
     try:
+        # Check if we're actually on the login page
+        if "/login/" in driver.current_url or "/signin/" in driver.current_url or "/authwall/" in driver.current_url:
+            return True
+            
+        # Check for actual security blocks or captcha
         body_text = driver.find_element("body").text
+        page_title = driver.title
+        
+        # Only block if we find real security issues
+        security_issues = bool(re.search(r"captcha|security check|you are blocked|access denied", f"{page_title} {body_text}", re.I))
+        
+        # Check if job cards exist - if they do, page is NOT blocked
+        job_cards_exist = len(driver.find_elements("css selector", "li.jobs-search-results__list-item, div.job-card-container")) > 0
+        
+        return security_issues and not job_cards_exist
     except WebDriverException:
-        body_text = ""
-
-    return bool(BLOCKED_PATTERN.search(f"{driver.title} {body_text}"))
+        return True
 
 
 def wait_for_manual_verification(driver, source):
@@ -155,6 +167,31 @@ def extract_source_lead_id(url):
     if not match:
         return None
     return next((group for group in match.groups() if group), None)
+
+
+def calculate_base_score(job):
+    """Calculate base score from critical fields - these are the HIGHEST weighted"""
+    base_score = 0
+    # Highest priority: contact info and company details (max 100 points from these alone)
+    if job.get("companyName"):
+        base_score += 30  # Company name exists
+    if job.get("location"):
+        base_score += 25  # Location exists
+    if job.get("email"):
+        base_score += 30  # Email exists (highest value contact field)
+    if job.get("phone"):
+        base_score += 15  # Phone exists
+    
+    # Add small freshness bonus (doesn't override critical fields priority)
+    if job.get("postedAtRaw"):
+        posted_raw = job["postedAtRaw"].lower()
+        if "hour" in posted_raw or "minute" in posted_raw or "today" in posted_raw:
+            base_score += 5  # Small bonus for very fresh leads
+        elif "day" in posted_raw and ("1" in posted_raw or "2" in posted_raw):
+            base_score += 2  # Tiny bonus for leads posted in last 48h
+    
+    # Critical fields are always highest - even with bonuses, cap base at 100
+    return min(base_score, 100)
 
 
 def detect_country(text, config):
@@ -278,6 +315,23 @@ def extract_job_details(driver, job, config):
     if description:
         job["description"] = description
 
+    # Extract contact information (email/phone) from job description (matches Upwork's logic)
+    email = ""
+    phone = ""
+    # Only search within the job description to avoid false positives
+    email_matches = re.findall(r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}", description)
+    if email_matches:
+        email = email_matches[0]
+    
+    # Only search for valid phone numbers with at least 10 digits
+    phone_matches = re.findall(r"\+?[\d\s-]{10,}", description)
+    valid_phones = [p for p in phone_matches if sum(c.isdigit() for c in p) >= 10]
+    if valid_phones:
+        phone = valid_phones[0]
+    
+    job["email"] = email
+    job["phone"] = phone
+
     return job
 
 
@@ -325,8 +379,12 @@ def scrape_linkedin(source, category, config):
                         driver.get(job["url"])
                         time.sleep(2)
                         job = extract_job_details(driver, job, config)
+                        # Calculate base score from critical fields (highest priority)
+                        job["score"] = calculate_base_score(job)
+                        print(f"[LINKEDIN] Base score calculated: {job['score']} for: {job['title']}")
                     except Exception as error:
                         print(f"[LINKEDIN-ERROR] Failed to scrape details for {job['url']}: {error}")
+                        job["score"] = 0
 
                 all_jobs.append(job)
 
