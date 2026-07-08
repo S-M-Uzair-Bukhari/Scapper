@@ -47,7 +47,51 @@ def serialize_value(value):
 
 
 def read_existing_lead_keys():
-    return []
+    """Read existing leads from Google Sheets to check for duplicates across runs"""
+    from lead_scraper.google_sheets_writer import load_settings, is_configured, get_service, execute_request, quote_sheet_name
+    
+    if not is_configured():
+        print("[EXCEL-WRITER] Google Sheets not configured, can't check for existing leads")
+        return []
+    
+    settings = load_settings()
+    if not settings["spreadsheetId"]:
+        return []
+    
+    try:
+        service = get_service(settings)
+        # Read from "All Scraped Leads" sheet which contains all previously saved leads
+        range_name = f"{quote_sheet_name('All Scraped Leads')}!A:Z"
+        result = service.spreadsheets().values().get(
+            spreadsheetId=settings["spreadsheetId"],
+            range=range_name,
+        )
+        values = execute_request(result).get("values", [])
+        
+        if not values:
+            return []
+        
+        # Get column indices to map values correctly
+        headers = values[0]
+        url_index = headers.index("URL") if "URL" in headers else -1
+        source_lead_id_index = headers.index("Source Lead ID") if "Source Lead ID" in headers else -1
+        
+        existing_leads = []
+        # Skip header row, process all existing leads
+        for row in values[1:]:
+            lead = {}
+            if url_index >= 0 and len(row) > url_index:
+                lead["url"] = row[url_index]
+            if source_lead_id_index >= 0 and len(row) > source_lead_id_index:
+                lead["sourceLeadId"] = row[source_lead_id_index]
+            existing_leads.append(lead)
+        
+        print(f"[EXCEL-WRITER] Loaded {len(existing_leads)} existing leads from sheet for deduplication")
+        return existing_leads
+        
+    except Exception as e:
+        print(f"[EXCEL-WRITER] Error reading existing leads: {str(e)}")
+        return []
 
 
 def save_run_result(accepted_leads, rejected_leads, logs, all_leads=None):

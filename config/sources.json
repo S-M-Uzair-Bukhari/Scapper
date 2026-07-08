@@ -16,7 +16,7 @@
     "onlyCompanyProjects": false
   },
   {
-    "name": "linkedin",
+    "name": "linkedin-jobs",
     "enabled": true,
     "intervalMinutes": 15,
     "maxResultsPerRun": 5,
@@ -24,10 +24,65 @@
     "maxPages": 1,
     "profileDir": "data/chrome-profile/linkedin",
     "waitForManualVerification": true,
-    "manualVerificationTimeoutMs": 180000,
+    "manualVerificationTimeoutMs": 600000,
     "pageLoadWaitMs": 10000,
     "keepBrowserOpen": false,
-    "delayBetweenPagesMs": 5000
+    "delayBetweenPagesMs": 5000,
+    "scrapePosts": false,
+    "linkedin_cookie": "li_sugr=ca5af7bf-4913-45fa-abc7-3754c06fe33c; bcookie=\"v=2&549abf2e-f199-4494-8c84-50a50316a895\"; bscookie=\"v=1&202606231533144f5c76f0-e6f3-4e4e-8e80-cc8c83c85e8eAQGh-BEIHhShR2qb_LvHwKNHHDbFTgdB\"; fid=AQFlZRMhnGUz_wAAAZ9CxbJ8MJXUhC5SxPfgCMHcRli7M72ii8eVlRmpbwJIqNdO0mlcWQlhkq8D5A; AMCVS_14215E3D5995C57C0A495C55%40AdobeOrg=1; aam_uuid=74374280565801151951833888577408611910; g_state={\"i_l\":0}; timezone=Asia/Karachi; AMCV_14215E3D5995C57C0A495C55%40AdobeOrg=-637568504%7CMCIDTS%7C20643%7CMCMID%7C74917757295049915361854472377906546061%7CMCAAMLH-1784137484%7C3%7CMCAAMB-1784137484%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1783539884s%7CNONE%7CvVersion%7C5.1.1%7CMCCIDH%7C-2118272350; _uetsid=b475ca907af411f190c9d7a4694750e2; _uetvid=b475ef307af411f193c40bc8cd09afff; _gcl_au=1.1.499285752.1783532685; _guid=c000176d-cb29-48f0-acbf-4b04c85638b9; AnalyticsSyncHistory=AQKV29xD9uPz_gAAAZ9C1k-_rMFfOvo6GoflZx-qqS0V-URoP0SIQBaa79uH5DPSnUeZQ4D1S5YoUzY7rzLzTw; lms_ads=AQGTR8I2JOLSJgAAAZ9C1lDyl97xyyN1uupoMLM8hbrWzQOYtGebZ_UilGtMJLCY8yvhjii2xbPO6Iw0xLlabcO0yDM37pny; lms_analytics=AQGTR8I2JOLSJgAAAZ9C1lDyl97xyyN1uupoMLM8hbrWzQOYtGebZ_UilGtMJLCY8yvhjii2xbPO6Iw0xLlabcO0yDM37pny; li_theme=light; li_theme_set=app; dfpfpt=fcfa350b353f4261ab9c34293de8d65e; fptctx2=AQE1G3uBUe7%252fOXr3%252bQOXU1MPmcfE2qcES%252frUWYOQJad38j2e2mmi1InvcavgVQIwo8L4MNFh5ttAlMvhy0y4xw7JFmXqQQhKlbBue%252bKJGgfwUXNBVksA7gw%252bjGf4nhYbQPq7OTcOmtTiRUlc96Xi7UpoyXVna5cZAywzNMGIAFJr8MGiWhhVzuwlNr%252bTxMmwURjggkgj%252fCg%252fu0xHjeeDMDeAjro%252fqHO9sAcu5ziH2Ugg9u8DnCEjlbdJP6so0ZxOoVIxTO4pXVcpNt8gqFvjdpQFSQyS92rIV8irr8Ga%252fWktWybfNr%252f71XvU0F6CaIVYj9kzv3KT6JYW3IWHG8iiJ3IiMNRSGE2sjl6LUn3moaj3m%252fge8ZuFfwPU4DMtqyDnRQopZj1ZKCWcNM5udX66MGcP; li_g_recent_logout=v=1&true; visit=v=1&M; lang=v=2&lang=en-us; sdui_ver=sdui-flagship:0.1.44977.1+SduiFlagship0; li_at=AQEDAWr2JooAMg6WAAABn0LXgJEAAAGfZuQEkU4AgdZjW8C1UotQWVIngjE5TBmWwvIjJ1J6gqhIU8mJNs4tbmMHWhMdJH6FZ7eK8o_nqPC0yuB"
+  },
+  {
+    "name": "linkedin-posts",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 5,
+    "headless": false,
+    "maxPages": 1,
+    "profileDir": "data/chrome-profile/linkedin",
+    "waitForManualVerification": true,
+    "manualVerificationTimeoutMs": 600000,
+    "pageLoadWaitMs": 10000,
+    "keepBrowserOpen": false,
+    "delayBetweenPagesMs": 5000,
+    "scrapePosts": true,
+    "linkedin_email": "albertlobo1308@gmail.com",
+    "linkedin_password": "Shah.223344",
+    "linkedin_cookie": "li_sugr=ca5af7bf-4913-45fa-abc7-3754c06fe33c; bcookie=\"v=2&549abf2e-f199-4494-8c84-50a50316a895\"; bscookie=\"v=1&202606231533144f5c76f0-e6f3-4e4e-8e80-cc8c83c85e8eAQGh-BEIHhShR2qb_LvHwKNHHDbFTgdB\"; fid=AQFlZRMhnGUz_wAAAZ9CxbJ8MJXUhC5SxPfgCMHcRli7M72ii8eVlRmpbwJIqNdO0mlcWQlhkq8D5A; AMCVS_14215E3D5995C57C0A495C55%40AdobeOrg=1; aam_uuid=74374280565801151951833888577408611910; g_state={\"i_l\":0}; timezone=Asia/Karachi; AMCV_14215E3D5995C57C0A495C55%40AdobeOrg=-637568504%7CMCIDTS%7C20643%7CMCMID%7C74917757295049915361854472377906546061%7CMCAAMLH-1784137484%7C3%7CMCAAMB-1784137484%7CRKhpRz8krg2tLO6pguXWp5olkAcUniQYPHaMWWgdJ3xzPWQmdj0y%7CMCOPTOUT-1783539884s%7CNONE%7CvVersion%7C5.1.1%7CMCCIDH%7C-2118272350; _uetsid=b475ca907af411f190c9d7a4694750e2; _uetvid=b475ef307af411f193c40bc8cd09afff; _gcl_au=1.1.499285752.1783532685; _guid=c000176d-cb29-48f0-acbf-4b04c85638b9; AnalyticsSyncHistory=AQKV29xD9uPz_gAAAZ9C1k-_rMFfOvo6GoflZx-qqS0V-URoP0SIQBaa79uH5DPSnUeZQ4D1S5YoUzY7rzLzTw; lms_ads=AQGTR8I2JOLSJgAAAZ9C1lDyl97xyyN1uupoMLM8hbrWzQOYtGebZ_UilGtMJLCY8yvhjii2xbPO6Iw0xLlabcO0yDM37pny; lms_analytics=AQGTR8I2JOLSJgAAAZ9C1lDyl97xyyN1uupoMLM8hbrWzQOYtGebZ_UilGtMJLCY8yvhjii2xbPO6Iw0xLlabcO0yDM37pny; li_theme=light; li_theme_set=app; dfpfpt=fcfa350b353f4261ab9c34293de8d65e; fptctx2=AQE1G3uBUe7%252fOXr3%252bQOXU1MPmcfE2qcES%252frUWYOQJad38j2e2mmi1InvcavgVQIwo8L4MNFh5ttAlMvhy0y4xw7JFmXqQQhKlbBue%252bKJGgfwUXNBVksA7gw%252bjGf4nhYbQPq7OTcOmtTiRUlc96Xi7UpoyXVna5cZAywzNMGIAFJr8MGiWhhVzuwlNr%252bTxMmwURjggkgj%252fCg%252fu0xHjeeDMDeAjro%252fqHO9sAcu5ziH2Ugg9u8DnCEjlbdJP6so0ZxOoVIxTO4pXVcpNt8gqFvjdpQFSQyS92rIV8irr8Ga%252fWktWybfNr%252f71XvU0F6CaIVYj9kzv3KT6JYW3IWHG8iiJ3IiMNRSGE2sjl6LUn3moaj3m%252fge8ZuFfwPU4DMtqyDnRQopZj1ZKCWcNM5udX66MGcP; li_g_recent_logout=v=1&true; visit=v=1&M; lang=v=2&lang=en-us; sdui_ver=sdui-flagship:0.1.44977.1+SduiFlagship0; li_at=AQEDAWr2JooAMg6WAAABn0LXgJEAAAGfZuQEkU4AgdZjW8C1UotQWVIngjE5TBmWwvIjJ1J6gqhIU8mJNs4tbmMHWhMdJH6FZ7eK8o_nqPC0yuB"
+  },
+  {
+    "name": "glassdoor",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 100,
+    "headless": true
+  },
+  {
+    "name": "monster",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 100,
+    "headless": true
+  },
+  {
+    "name": "ziprecruiter",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 100,
+    "headless": true
+  },
+  {
+    "name": "careerbuilder",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 100,
+    "headless": true
+  },
+  {
+    "name": "simplyhired",
+    "enabled": false,
+    "intervalMinutes": 15,
+    "maxResultsPerRun": 100,
+    "headless": true
   },
   {
     "name": "facebook",

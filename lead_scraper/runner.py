@@ -14,6 +14,8 @@ from lead_scraper.scrapers.upwork import scrape_upwork
 SCRAPERS = {
     "upwork": scrape_upwork,
     "linkedin": scrape_linkedin,
+    "linkedin-jobs": scrape_linkedin,
+    "linkedin-posts": scrape_linkedin,
     "facebook": scrape_facebook,
     "instagram": scrape_instagram,
 }

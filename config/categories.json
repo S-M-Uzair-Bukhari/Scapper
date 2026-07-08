@@ -1,9 +1,9 @@
 [
 
     {
-    "name": "CMS",
+    "name": "automation",
     "enabled": true,
-    "keywords": ["cms", "wordpress"]
+    "keywords": ["automation", "scraping", "crawler", "playwright", "puppeteer", "workflow"]
   }
 
 ]
