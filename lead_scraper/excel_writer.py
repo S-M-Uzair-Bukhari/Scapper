@@ -98,7 +98,7 @@ def save_run_result(accepted_leads, rejected_leads, logs, all_leads=None):
     if all_leads is None:
         all_leads = [*accepted_leads, *rejected_leads]
 
-    if save_to_google_sheets(accepted_leads, rejected_leads, all_leads, LEAD_COLUMNS):
+    if save_to_google_sheets(accepted_leads, rejected_leads, all_leads, LEAD_COLUMNS, logs, LOG_COLUMNS):
         print("[GOOGLE-SHEETS] Saved leads to Google Sheets.")
 
 

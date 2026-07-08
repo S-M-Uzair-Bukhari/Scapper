@@ -7,6 +7,7 @@ from lead_scraper.config import from_root
 
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 LEAD_SHEET_NAMES = ("Priority Leads", "All Scraped Leads", "Rejected Low Score")
+LOG_SHEET_NAME = "Run Logs"
 DEFAULT_API_TIMEOUT_SECONDS = 120
 DEFAULT_API_RETRIES = 3
 
@@ -173,12 +174,16 @@ def serialize_rows(columns, rows):
     ]
 
 
-def ensure_sheets(service, spreadsheet_id, columns):
+def ensure_sheets(service, spreadsheet_id, lead_columns, log_columns=None):
     spreadsheet = execute_request(service.spreadsheets().get(spreadsheetId=spreadsheet_id))
     existing_titles = {sheet["properties"]["title"] for sheet in spreadsheet.get("sheets", [])}
     requests = []
 
-    for title in LEAD_SHEET_NAMES:
+    sheet_names = list(LEAD_SHEET_NAMES)
+    if log_columns is not None:
+        sheet_names.append(LOG_SHEET_NAME)
+
+    for title in sheet_names:
         if title not in existing_titles:
             requests.append({"addSheet": {"properties": {"title": title}}})
 
@@ -188,8 +193,14 @@ def ensure_sheets(service, spreadsheet_id, columns):
             body={"requests": requests},
         ))
 
-    headers = [header for header, _key, _width in columns]
-    for title in LEAD_SHEET_NAMES:
+    headers_by_sheet = {
+        title: [header for header, _key, _width in lead_columns]
+        for title in LEAD_SHEET_NAMES
+    }
+    if log_columns is not None:
+        headers_by_sheet[LOG_SHEET_NAME] = [header for header, _key, _width in log_columns]
+
+    for title, headers in headers_by_sheet.items():
         range_name = f"{quote_sheet_name(title)}!1:1"
         result = service.spreadsheets().values().get(
             spreadsheetId=spreadsheet_id,
@@ -220,7 +231,7 @@ def append_sheet_rows(service, spreadsheet_id, sheet_name, columns, rows):
     ))
 
 
-def save_to_google_sheets(accepted_leads, rejected_leads, all_leads, columns):
+def save_to_google_sheets(accepted_leads, rejected_leads, all_leads, columns, logs=None, log_columns=None):
     settings = load_settings()
     if not settings["enabled"]:
         return False
@@ -232,10 +243,11 @@ def save_to_google_sheets(accepted_leads, rejected_leads, all_leads, columns):
         service = get_service(settings)
         spreadsheet_id = settings["spreadsheetId"]
 
-        ensure_sheets(service, spreadsheet_id, columns)
+        ensure_sheets(service, spreadsheet_id, columns, log_columns)
         append_sheet_rows(service, spreadsheet_id, "Priority Leads", columns, accepted_leads)
         append_sheet_rows(service, spreadsheet_id, "Rejected Low Score", columns, rejected_leads)
         append_sheet_rows(service, spreadsheet_id, "All Scraped Leads", columns, all_leads)
+        append_sheet_rows(service, spreadsheet_id, LOG_SHEET_NAME, log_columns, logs or [])
     except Exception as error:
         print_google_sheets_error(error)
         return False
